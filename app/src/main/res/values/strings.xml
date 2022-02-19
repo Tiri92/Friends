@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Friends</string>
+
+    <string name="authentication_canceled">Authentication canceled</string>
+    <string name="error_no_internet">Error no internet</string>
+    <string name="unknown_error">Unknown error</string>
 </resources>
