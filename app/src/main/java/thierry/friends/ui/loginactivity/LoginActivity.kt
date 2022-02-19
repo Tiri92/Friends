@@ -1,4 +1,4 @@
-package thierry.friends
+package thierry.friends.ui.loginactivity
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +11,8 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.AuthUI.IdpConfig.EmailBuilder
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
+import thierry.friends.R
+import thierry.friends.ui.mainactivity.MainActivity
 
 class LoginActivity : AppCompatActivity() {
 

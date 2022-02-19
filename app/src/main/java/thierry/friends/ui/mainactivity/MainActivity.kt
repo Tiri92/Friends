@@ -1,7 +1,8 @@
-package thierry.friends
+package thierry.friends.ui.mainactivity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import thierry.friends.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
