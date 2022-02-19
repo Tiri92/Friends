@@ -4,4 +4,7 @@
     <string name="authentication_canceled">Authentication canceled</string>
     <string name="error_no_internet">Error no internet</string>
     <string name="unknown_error">Unknown error</string>
+    <string name="logout">Logout</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
