@@ -6,16 +6,20 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.AuthUI.IdpConfig.EmailBuilder
 import com.firebase.ui.auth.ErrorCodes
 import com.firebase.ui.auth.IdpResponse
+import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.ui.mainactivity.MainActivity
 
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
+    private val viewModel: LoginActivityViewModel by viewModels()
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +29,12 @@ class LoginActivity : AppCompatActivity() {
                 handleResponseAfterSignIn(result?.resultCode!!, result.data!!)
             }
 
-        startSignInActivity()
+        if (viewModel.isCurrentUserLogged()) {
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        } else {
+            startSignInActivity()
+        }
     }
 
     private fun startSignInActivity() {

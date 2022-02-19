@@ -7,6 +7,15 @@ import thierry.friends.R
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        authStateListener = AuthStateListener {
+            if (!viewModel.isCurrentUserLogged()) {
+                comeBackToLoginActivity()
+            }
+        }
+        FirebaseAuth.getInstance().addAuthStateListener(authStateListener)
+        connectionListener()
     }
 }
