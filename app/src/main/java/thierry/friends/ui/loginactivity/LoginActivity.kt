@@ -54,7 +54,7 @@ class LoginActivity : AppCompatActivity() {
     private fun handleResponseAfterSignIn(resultCode: Int, data: Intent) {
         val response = IdpResponse.fromResultIntent(data)
         if (resultCode == RESULT_OK) {
-            //loginActivityViewModel.createUser()
+            viewModel.createUserInFirestore()
             startActivity(Intent(this, MainActivity::class.java))
         } else {
             if (response == null) {

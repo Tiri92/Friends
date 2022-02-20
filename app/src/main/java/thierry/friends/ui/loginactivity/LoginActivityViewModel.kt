@@ -13,4 +13,8 @@ class LoginActivityViewModel @Inject constructor(private val firestoreRepository
         return firestoreRepository.isCurrentUserLogged()
     }
 
+    fun createUserInFirestore() {
+        firestoreRepository.createUserInFirestore()
+    }
+
 }
