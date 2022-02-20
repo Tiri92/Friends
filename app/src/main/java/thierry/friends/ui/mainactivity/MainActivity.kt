@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -25,11 +26,33 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var authStateListener: AuthStateListener
+    private lateinit var toggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        toggle = ActionBarDrawerToggle(this, binding.drawerLayout, R.string.open, R.string.close)
+        binding.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        binding.navView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.logout -> {
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle("Are you sure you want to log out ?")
+                        .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
+                            viewModel.logout(this)
+                        }
+                        .setNegativeButton(resources.getString(R.string.no)) { _, _ ->
+                        }
+                        .show()
+                }
+            }
+            true
+        }
 
         authStateListener = AuthStateListener {
             if (!viewModel.isCurrentUserLogged()) {
@@ -64,6 +87,9 @@ class MainActivity : AppCompatActivity() {
                     }
                     .show()
             }
+        }
+        if (toggle.onOptionsItemSelected(item)) {
+            return true
         }
         return super.onOptionsItemSelected(item)
     }
