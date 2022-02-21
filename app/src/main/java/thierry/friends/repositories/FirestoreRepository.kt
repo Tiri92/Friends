@@ -89,7 +89,9 @@ class FirestoreRepository @Inject constructor() {
                 if (value != null) {
                     for (document in value.documents) {
                         val myUser = document.toObject(User::class.java)
-                        myUser?.let { mutableListOfAllUsers.add(it) }
+                        if (myUser?.uid != getCurrentUserId()) {
+                            myUser?.let { mutableListOfAllUsers.add(it) }
+                        }
                     }
                 }
                 listOfAllUsers.setValue(mutableListOfAllUsers)
