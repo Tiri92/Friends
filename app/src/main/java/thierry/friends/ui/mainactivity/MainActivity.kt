@@ -11,10 +11,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
@@ -23,6 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.databinding.ActivityMainBinding
 import thierry.friends.model.User
+import thierry.friends.ui.friendsfragment.FriendsFragment
 import thierry.friends.ui.loginactivity.LoginActivity
 
 @AndroidEntryPoint
@@ -56,6 +59,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             true
+        }
+
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.friends -> {
+                    openFragment(FriendsFragment.newInstance())
+                    true
+                }
+                R.id.web_view -> {
+                    Toast.makeText(baseContext, "yeah2!", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.google_map -> {
+                    Toast.makeText(baseContext, "yeah3!", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
         }
 
         viewModel.listenerOnTheCurrentUserData().addSnapshotListener { value, _ ->
@@ -100,20 +121,19 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-                MaterialAlertDialogBuilder(this)
-                    .setTitle("Are you sure you want to log out ?")
-                    .setPositiveButton(resources.getString(R.string.yes)) { _, _ ->
-                        viewModel.logout(this)
-                    }
-                    .setNegativeButton(resources.getString(R.string.no)) { _, _ ->
-                    }
-                    .show()
+                Toast.makeText(baseContext, "yeah!", Toast.LENGTH_SHORT).show()
             }
         }
         if (toggle.onOptionsItemSelected(item)) {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun openFragment(fragmentInstance: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view, fragmentInstance)
+            .commit()
     }
 
     private fun connectionListener() {
