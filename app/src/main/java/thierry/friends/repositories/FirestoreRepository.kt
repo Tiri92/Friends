@@ -1,16 +1,16 @@
 package thierry.friends.repositories
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.firebase.ui.auth.AuthUI
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.*
 import thierry.friends.model.User
-import javax.inject.Singleton
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val COLLECTION_USERS = "users"
 
@@ -59,8 +59,7 @@ class FirestoreRepository @Inject constructor() {
                 email.toString(),
                 urlPicture
             )
-            val userData: Task<DocumentSnapshot> = getDataOnCurrentUser()
-            userData.addOnSuccessListener { documentSnapshot ->
+            getDataOnCurrentUser().addOnSuccessListener { documentSnapshot ->
                 val currentUserInFirestore = documentSnapshot.toObject(User::class.java)
                 if (currentUserInFirestore == null) {
                     getUsersCollection().document(uid).set(userToCreate)
@@ -72,6 +71,32 @@ class FirestoreRepository @Inject constructor() {
     /** Get information from the firestore about the current user **/
     private fun getDataOnCurrentUser(): Task<DocumentSnapshot> {
         return getUsersCollection().document(getCurrentUserId()).get()
+    }
+
+    /** Get information in real time from the firestore about the current user **/
+    fun listenerOnTheCurrentUserData(): DocumentReference {
+        return getUsersCollection().document(getCurrentUserId())
+    }
+
+    private val listOfUsers = MutableLiveData<List<User>>()
+
+    private fun getAllUsers() {
+        getUsersCollection()
+            .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
+                val allWorkMates: MutableList<User> = mutableListOf()
+                if (value != null) {
+                    for (document in value.documents) {
+                        val myUser = document.toObject(User::class.java)
+                        myUser?.let { allWorkMates.add(it) }
+                    }
+                }
+                listOfUsers.setValue(allWorkMates)
+            }
+    }
+
+    fun getListOfAllUsers(): LiveData<List<User>> {
+        getAllUsers()
+        return listOfUsers
     }
 
 }

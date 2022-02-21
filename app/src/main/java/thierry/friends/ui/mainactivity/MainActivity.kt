@@ -9,16 +9,20 @@ import android.net.NetworkRequest
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.databinding.ActivityMainBinding
+import thierry.friends.model.User
 import thierry.friends.ui.loginactivity.LoginActivity
 
 @AndroidEntryPoint
@@ -52,6 +56,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             true
+        }
+
+        viewModel.listenerOnTheCurrentUserData().addSnapshotListener { value, _ ->
+            if (value != null) {
+                val currentUserInFirestore = value.toObject(User::class.java)
+                if (currentUserInFirestore != null) {
+                    val userEmailTextView: TextView =
+                        binding.navView.getHeaderView(0).findViewById(R.id.user_email)
+                    userEmailTextView.text = currentUserInFirestore.userEmail
+                    val usernameTextView: TextView =
+                        binding.navView.getHeaderView(0).findViewById(R.id.username)
+                    usernameTextView.text = currentUserInFirestore.username
+                    val userPic: ImageView =
+                        binding.navView.getHeaderView(0).findViewById(R.id.imageview)
+                    Glide.with(baseContext).load(currentUserInFirestore.userPicture).circleCrop()
+                        .into(userPic)
+                }
+            }
         }
 
         authStateListener = AuthStateListener {
