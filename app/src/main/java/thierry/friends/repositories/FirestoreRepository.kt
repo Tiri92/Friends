@@ -78,25 +78,29 @@ class FirestoreRepository @Inject constructor() {
         return getUsersCollection().document(getCurrentUserId())
     }
 
-    private val listOfUsers = MutableLiveData<List<User>>()
+    /** Get all the users of the application **/
+
+    private val listOfAllUsers = MutableLiveData<List<User>>()
 
     private fun getAllUsers() {
         getUsersCollection()
             .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
-                val allWorkMates: MutableList<User> = mutableListOf()
+                val mutableListOfAllUsers: MutableList<User> = mutableListOf()
                 if (value != null) {
                     for (document in value.documents) {
                         val myUser = document.toObject(User::class.java)
-                        myUser?.let { allWorkMates.add(it) }
+                        myUser?.let { mutableListOfAllUsers.add(it) }
                     }
                 }
-                listOfUsers.setValue(allWorkMates)
+                listOfAllUsers.setValue(mutableListOfAllUsers)
             }
     }
 
     fun getListOfAllUsers(): LiveData<List<User>> {
         getAllUsers()
-        return listOfUsers
+        return listOfAllUsers
     }
+
+    /** **/
 
 }
