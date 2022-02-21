@@ -9,10 +9,10 @@
         android:title="Friends" />
 
     <item
-        android:id="@+id/web_view"
+        android:id="@+id/second"
         android:enabled="true"
         android:icon="@drawable/twotone_logout_24"
-        android:title="" />
+        android:title="Second" />
 
     <item
         android:id="@+id/google_map"

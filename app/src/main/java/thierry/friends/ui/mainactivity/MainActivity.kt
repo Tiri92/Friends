@@ -27,6 +27,7 @@ import thierry.friends.databinding.ActivityMainBinding
 import thierry.friends.model.User
 import thierry.friends.ui.friendsfragment.FriendsFragment
 import thierry.friends.ui.loginactivity.LoginActivity
+import thierry.friends.ui.secondfragment.SecondFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -67,8 +68,8 @@ class MainActivity : AppCompatActivity() {
                     openFragment(FriendsFragment.newInstance())
                     true
                 }
-                R.id.web_view -> {
-                    Toast.makeText(baseContext, "yeah2!", Toast.LENGTH_SHORT).show()
+                R.id.second -> {
+                    openFragment(SecondFragment.newInstance())
                     true
                 }
                 R.id.google_map -> {
