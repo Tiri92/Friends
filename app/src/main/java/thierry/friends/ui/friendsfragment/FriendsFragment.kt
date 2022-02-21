@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,7 +28,7 @@ class FriendsFragment : Fragment() {
 
         recyclerView = binding.recyclerviewFriends
         viewModel.getListOfAllUsers().observe(viewLifecycleOwner) { listOfAllUsers ->
-            setUpRecyclerView(recyclerView, listOfAllUsers)
+            setUpRecyclerView(recyclerView, listOfAllUsers, parentFragmentManager)
         }
 
         return rootView
@@ -35,13 +36,14 @@ class FriendsFragment : Fragment() {
 
     private fun setUpRecyclerView(
         recyclerView: RecyclerView,
-        listOfAllUsers: List<User>
+        listOfAllUsers: List<User>,
+        parentFragmentManager: FragmentManager
     ) {
         val myLayoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = myLayoutManager
         recyclerView.adapter =
-            FriendsAdapter(listOfAllUsers)
+            FriendsAdapter(listOfAllUsers, parentFragmentManager)
     }
 
     companion object {
