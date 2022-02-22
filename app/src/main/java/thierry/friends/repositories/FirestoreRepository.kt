@@ -28,7 +28,7 @@ class FirestoreRepository @Inject constructor() {
     }
 
     /** Get the id of the current user **/
-    private fun getCurrentUserId(): String {
+    fun getCurrentUserId(): String {
         return getCurrentUser()?.uid.toString()
     }
 

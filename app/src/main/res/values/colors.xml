@@ -4,4 +4,6 @@
     <color name="brown_700">#9A4B0E</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="beige">#F6CBAB</color>
+    <color name="gray">#dedede</color>
 </resources>
