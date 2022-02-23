@@ -54,7 +54,7 @@ class ChatFragment : Fragment() {
 
         setHasOptionsMenu(true)
         (activity as AppCompatActivity?)!!.supportActionBar!!.title =
-            "Chat with $usernameOfReceiver"
+            getString(R.string.chat_with) + " $usernameOfReceiver"
 
         recyclerView = binding.recyclerViewChat
         val currentUserId = viewModel.getCurrentUserId()
