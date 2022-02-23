@@ -4,8 +4,10 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -28,6 +30,7 @@ class ChatFragment : Fragment() {
     private val viewModel: ChatFragmentViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var currentUserPicture: String
+    private lateinit var bottomNav: BottomNavigationView
     private var uidOfReceiver: String? = null
     private var usernameOfReceiver: String? = null
 
@@ -46,9 +49,12 @@ class ChatFragment : Fragment() {
         val binding = FragmentChatBinding.inflate(layoutInflater)
         val rootView = binding.root
 
-        val bottomNav =
-            requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav = requireActivity().findViewById(R.id.bottom_navigation)
         bottomNav.isVisible = false
+
+        setHasOptionsMenu(true)
+        (activity as AppCompatActivity?)!!.supportActionBar!!.title =
+            "Chat with $usernameOfReceiver"
 
         recyclerView = binding.recyclerViewChat
         val currentUserId = viewModel.getCurrentUserId()
@@ -90,6 +96,11 @@ class ChatFragment : Fragment() {
         return rootView
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.logout).isVisible = false
+    }
+
     private fun setUpRecyclerView(
         recyclerView: RecyclerView,
         listOfMessages: List<Message>,
@@ -105,6 +116,8 @@ class ChatFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         viewModel.cleanUpTheLiveData()
+        bottomNav.isVisible = true
+        (activity as AppCompatActivity?)!!.supportActionBar!!.title = "Friends"
     }
 
     companion object {

@@ -4,15 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
-import thierry.friends.R
 import thierry.friends.databinding.FragmentFriendsBinding
 import thierry.friends.model.User
 
@@ -28,10 +25,6 @@ class FriendsFragment : Fragment() {
     ): View {
         val binding = FragmentFriendsBinding.inflate(layoutInflater)
         val rootView = binding.root
-
-        val bottomNav =
-            requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.isVisible = true
 
         recyclerView = binding.recyclerviewFriends
         viewModel.getListOfAllUsers().observe(viewLifecycleOwner) { listOfAllUsers ->
