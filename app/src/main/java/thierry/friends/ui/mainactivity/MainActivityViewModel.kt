@@ -5,23 +5,23 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentReference
 import dagger.hilt.android.lifecycle.HiltViewModel
-import thierry.friends.repositories.FirestoreRepository
+import thierry.friends.repositories.firestore.UserRepository
 import javax.inject.Inject
 
 @HiltViewModel
-class MainActivityViewModel @Inject constructor(private val firestoreRepository: FirestoreRepository) :
+class MainActivityViewModel @Inject constructor(private val userRepository: UserRepository) :
     ViewModel() {
 
     fun isCurrentUserLogged(): Boolean {
-        return firestoreRepository.isCurrentUserLogged()
+        return userRepository.isCurrentUserLogged()
     }
 
     fun logout(context: Context): Task<Void?> {
-        return firestoreRepository.logout(context)
+        return userRepository.logout(context)
     }
 
     fun listenerOnTheCurrentUserData(): DocumentReference {
-        return firestoreRepository.listenerOnTheCurrentUserData()
+        return userRepository.listenerOnTheCurrentUserData()
     }
 
 }

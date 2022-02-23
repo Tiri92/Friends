@@ -1,4 +1,4 @@
-package thierry.friends.repositories
+package thierry.friends.repositories.firestore
 
 import android.content.Context
 import androidx.lifecycle.LiveData
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 private const val COLLECTION_USERS = "users"
 
 @Singleton
-class FirestoreRepository @Inject constructor() {
+class UserRepository @Inject constructor() {
 
     /** get the users collection **/
     private fun getUsersCollection(): CollectionReference {

@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.DocumentReference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import thierry.friends.model.Message
-import thierry.friends.repositories.ChatRepository
-import thierry.friends.repositories.FirestoreRepository
+import thierry.friends.repositories.firestore.ChatRepository
+import thierry.friends.repositories.firestore.UserRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class ChatFragmentViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
-    private val firestoreRepository: FirestoreRepository
+    private val userRepository: UserRepository
 ) :
     ViewModel() {
 
@@ -33,11 +33,11 @@ class ChatFragmentViewModel @Inject constructor(
     }
 
     fun getCurrentUserId(): String {
-        return firestoreRepository.getCurrentUserId()
+        return userRepository.getCurrentUserId()
     }
 
     fun listenerOnTheCurrentUserData(): DocumentReference {
-        return firestoreRepository.listenerOnTheCurrentUserData()
+        return userRepository.listenerOnTheCurrentUserData()
     }
 
 }

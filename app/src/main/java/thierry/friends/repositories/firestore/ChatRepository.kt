@@ -1,4 +1,4 @@
-package thierry.friends.repositories
+package thierry.friends.repositories.firestore
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
