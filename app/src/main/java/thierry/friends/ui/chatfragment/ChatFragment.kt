@@ -51,10 +51,10 @@ class ChatFragment : Fragment() {
 
         bottomNav = requireActivity().findViewById(R.id.bottom_navigation)
         bottomNav.isVisible = false
-
         setHasOptionsMenu(true)
         (activity as AppCompatActivity?)!!.supportActionBar!!.title =
             getString(R.string.chat_with) + " $usernameOfReceiver"
+        (activity as AppCompatActivity?)!!.supportActionBar!!.setDisplayHomeAsUpEnabled(false)
 
         recyclerView = binding.recyclerViewChat
         val currentUserId = viewModel.getCurrentUserId()
@@ -118,6 +118,7 @@ class ChatFragment : Fragment() {
         viewModel.cleanUpTheLiveData()
         bottomNav.isVisible = true
         (activity as AppCompatActivity?)!!.supportActionBar!!.title = "Friends"
+        (activity as AppCompatActivity?)!!.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 
     companion object {
