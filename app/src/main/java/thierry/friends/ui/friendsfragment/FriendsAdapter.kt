@@ -30,7 +30,8 @@ class FriendsAdapter(
                 R.id.fragment_container_view,
                 ChatFragment.newInstance(
                     listOfAllUsers[position].uid,
-                    listOfAllUsers[position].username
+                    listOfAllUsers[position].username,
+                    listOfAllUsers[position].userFcmToken
                 )
             ).addToBackStack("ChatFragment").commit()
         }

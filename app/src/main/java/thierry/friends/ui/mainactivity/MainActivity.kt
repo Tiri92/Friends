@@ -7,6 +7,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -21,6 +22,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.databinding.ActivityMainBinding
@@ -94,6 +96,16 @@ class MainActivity : AppCompatActivity() {
                         binding.navView.getHeaderView(0).findViewById(R.id.imageview)
                     Glide.with(baseContext).load(currentUserInFirestore.userPicture).circleCrop()
                         .into(userPic)
+                    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val token = task.result
+                            Log.i("THIERRYBITAR", token)
+                            if (currentUserInFirestore.userFcmToken != token) {
+                                currentUserInFirestore.userFcmToken = token
+                                viewModel.setUserFcmToken(currentUserInFirestore)
+                            }
+                        }
+                    }
                 }
             }
         }

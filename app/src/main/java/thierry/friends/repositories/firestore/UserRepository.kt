@@ -57,7 +57,8 @@ class UserRepository @Inject constructor() {
                 uid,
                 username.toString(),
                 email.toString(),
-                urlPicture
+                urlPicture,
+                ""
             )
             getDataOnCurrentUser().addOnSuccessListener { documentSnapshot ->
                 val currentUserInFirestore = documentSnapshot.toObject(User::class.java)
@@ -104,5 +105,10 @@ class UserRepository @Inject constructor() {
     }
 
     /** **/
+
+    /** Set or update FCM Token of the current user to allow him to be notified when he receives messages **/
+    fun setUserFcmToken(currentUser: User) {
+        getUsersCollection().document(getCurrentUserId()).set(currentUser)
+    }
 
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentReference
 import dagger.hilt.android.lifecycle.HiltViewModel
+import thierry.friends.model.User
 import thierry.friends.repositories.firestore.UserRepository
 import javax.inject.Inject
 
@@ -22,6 +23,10 @@ class MainActivityViewModel @Inject constructor(private val userRepository: User
 
     fun listenerOnTheCurrentUserData(): DocumentReference {
         return userRepository.listenerOnTheCurrentUserData()
+    }
+
+    fun setUserFcmToken(currentUser: User) {
+        userRepository.setUserFcmToken(currentUser)
     }
 
 }

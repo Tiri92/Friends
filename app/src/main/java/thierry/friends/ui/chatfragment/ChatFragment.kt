@@ -19,10 +19,12 @@ import thierry.friends.R
 import thierry.friends.databinding.FragmentChatBinding
 import thierry.friends.model.Message
 import thierry.friends.model.User
+import thierry.friends.service.FcmNotificationsSender
 import java.util.*
 
 private const val ARG_UID = "uid"
 private const val ARG_USERNAME = "username"
+private const val ARG_USER_FCM_TOKEN = "user fcm token"
 
 @AndroidEntryPoint
 class ChatFragment : Fragment() {
@@ -30,15 +32,18 @@ class ChatFragment : Fragment() {
     private val viewModel: ChatFragmentViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var currentUserPicture: String
+    private lateinit var currentUsername: String
     private lateinit var bottomNav: BottomNavigationView
     private var uidOfReceiver: String? = null
     private var usernameOfReceiver: String? = null
+    private var userFcmToken: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             uidOfReceiver = it.getString(ARG_UID)
             usernameOfReceiver = it.getString(ARG_USERNAME)
+            userFcmToken = it.getString(ARG_USER_FCM_TOKEN)
         }
     }
 
@@ -72,6 +77,7 @@ class ChatFragment : Fragment() {
                 val currentUserInFirestore = value.toObject(User::class.java)
                 if (currentUserInFirestore != null) {
                     currentUserPicture = currentUserInFirestore.userPicture
+                    currentUsername = currentUserInFirestore.username
                 }
             }
         }
@@ -89,6 +95,13 @@ class ChatFragment : Fragment() {
                     Arrays.asList(currentUserId, uidOfReceiver), currentUserPicture
                 )
                 viewModel.createNewMessage(message)
+                val fcmNotification = FcmNotificationsSender(
+                    userFcmToken,
+                    currentUsername,
+                    binding.editTextMessage.text.toString(),
+                    requireActivity()
+                )
+                fcmNotification.sendNotification()
                 binding.editTextMessage.setText("")
             }
         }
@@ -122,11 +135,12 @@ class ChatFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(uid: String, username: String) =
+        fun newInstance(uid: String, username: String, userFcmToken: String) =
             ChatFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_UID, uid)
                     putString(ARG_USERNAME, username)
+                    putString(ARG_USER_FCM_TOKEN, userFcmToken)
                 }
             }
     }
