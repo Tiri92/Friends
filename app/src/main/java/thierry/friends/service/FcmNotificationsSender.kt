@@ -8,6 +8,7 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import org.json.JSONException
 import org.json.JSONObject
+import thierry.friends.BuildConfig
 import thierry.friends.R
 
 class FcmNotificationsSender(
@@ -18,8 +19,7 @@ class FcmNotificationsSender(
 ) {
     private var requestQueue: RequestQueue? = null
     private val postUrl = "https://fcm.googleapis.com/fcm/send"
-    private val fcmServerKey =
-        "AAAAJkup8vg:APA91bFowEgXZiFNRbOWh_FEM43gVzKQ2pWAKPmHKLP6w_XY2OIO9WOlKRijA7OHcNsqCiFqxAE4AvPSbnm-QaUXTy4ZAxO8qXbXi2yxhHEGCRegaFlpg32uF5DYbGNsWX5y0fmgRzfu"
+    private val fcmServerKey = BuildConfig.FIREBASE_SERVER_KEY
 
     fun sendNotification() {
         requestQueue = Volley.newRequestQueue(mActivity)

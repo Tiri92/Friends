@@ -21,6 +21,9 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
+        <meta-data
+            android:name="com.google.android.FIREBASE_SERVER_KEY"
+            android:value="${FIREBASE_SERVER_KEY}" />
 
         <activity
             android:name=".ui.loginactivity.LoginActivity"
