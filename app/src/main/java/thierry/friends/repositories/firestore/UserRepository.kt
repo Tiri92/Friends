@@ -111,4 +111,30 @@ class UserRepository @Inject constructor() {
         getUsersCollection().document(getCurrentUserId()).set(currentUser)
     }
 
+    /** Find a specific user based on what the user typed in the edit text **/
+
+    private val userSearchResult = MutableLiveData<List<User>>()
+
+    fun searchUser(usernameTyped: String) {
+        getUsersCollection().orderBy("username").startAt(usernameTyped).endAt(usernameTyped)
+            .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
+                val mutableUserSearchResult: MutableList<User> = mutableListOf()
+                if (value != null) {
+                    for (document in value.documents) {
+                        val myUser = document.toObject(User::class.java)
+                        if (myUser?.uid != getCurrentUserId()) {
+                            myUser?.let { mutableUserSearchResult.add(it) }
+                        }
+                    }
+                }
+                userSearchResult.setValue(mutableUserSearchResult)
+            }
+    }
+
+    fun getTheUserSearchResult(): LiveData<List<User>> {
+        return userSearchResult
+    }
+
+    /** **/
+
 }

@@ -1,5 +1,6 @@
 package thierry.friends.ui.mainactivity
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
@@ -29,7 +30,7 @@ import thierry.friends.databinding.ActivityMainBinding
 import thierry.friends.model.User
 import thierry.friends.ui.friendsfragment.FriendsFragment
 import thierry.friends.ui.loginactivity.LoginActivity
-import thierry.friends.ui.secondfragment.SecondFragment
+import thierry.friends.ui.usersearchfragment.UserSearchFragment
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.second -> {
-                    openFragment(SecondFragment.newInstance())
+                    openFragment(UserSearchFragment.newInstance())
                     true
                 }
                 R.id.google_map -> {
@@ -149,6 +150,7 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
+    @SuppressLint("MissingPermission")
     private fun connectionListener() {
         val connectivityManager =
             getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

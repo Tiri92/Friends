@@ -12,4 +12,5 @@
     <string name="none">none</string>
     <string name="message">Message</string>
     <string name="chat_with">Chat with</string>
+    <string name="search_a_user">Search a user</string>
 </resources>
