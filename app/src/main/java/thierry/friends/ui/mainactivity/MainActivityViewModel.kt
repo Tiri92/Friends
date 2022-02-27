@@ -26,7 +26,7 @@ class MainActivityViewModel @Inject constructor(private val userRepository: User
     }
 
     fun setUserFcmToken(currentUser: User) {
-        userRepository.setUserFcmToken(currentUser)
+        userRepository.setCurrentUserData(currentUser)
     }
 
 }

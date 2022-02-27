@@ -11,8 +11,8 @@
     <item
         android:id="@+id/second"
         android:enabled="true"
-        android:icon="@drawable/twotone_logout_24"
-        android:title="Second" />
+        android:icon="@drawable/baseline_group_24"
+        android:title="Add Friends" />
 
     <item
         android:id="@+id/google_map"

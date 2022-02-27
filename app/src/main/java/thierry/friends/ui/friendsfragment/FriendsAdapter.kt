@@ -2,6 +2,7 @@ package thierry.friends.ui.friendsfragment
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -11,7 +12,7 @@ import thierry.friends.model.User
 import thierry.friends.ui.chatfragment.ChatFragment
 
 class FriendsAdapter(
-    private val listOfAllUsers: List<User>,
+    private val listOfAllFriends: List<User>,
     private val parentFragmentManager: FragmentManager
 ) :
     RecyclerView.Adapter<FriendsAdapter.ViewHolder>() {
@@ -22,28 +23,30 @@ class FriendsAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.username.text = listOfAllUsers[position].username
-        Glide.with(holder.userPic).load(listOfAllUsers[position].userPicture).circleCrop()
+        holder.friendRequest.isVisible = false
+        holder.username.text = listOfAllFriends[position].username
+        Glide.with(holder.userPic).load(listOfAllFriends[position].userPicture).circleCrop()
             .into(holder.userPic)
         holder.itemView.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(
                 R.id.fragment_container_view,
                 ChatFragment.newInstance(
-                    listOfAllUsers[position].uid,
-                    listOfAllUsers[position].username,
-                    listOfAllUsers[position].userFcmToken
+                    listOfAllFriends[position].uid,
+                    listOfAllFriends[position].username,
+                    listOfAllFriends[position].userFcmToken
                 )
             ).addToBackStack("ChatFragment").commit()
         }
     }
 
     override fun getItemCount(): Int {
-        return listOfAllUsers.count()
+        return listOfAllFriends.count()
     }
 
     class ViewHolder(binding: UserItemBinding) : RecyclerView.ViewHolder(binding.root) {
         val userPic = binding.userPic
         val username = binding.username
+        val friendRequest = binding.friendRequestButton
     }
 
 }

@@ -27,7 +27,7 @@ class FriendsFragment : Fragment() {
         val rootView = binding.root
 
         recyclerView = binding.recyclerviewFriends
-        viewModel.getListOfAllUsers().observe(viewLifecycleOwner) { listOfAllUsers ->
+        viewModel.getListOfAllFriends().observe(viewLifecycleOwner) { listOfAllUsers ->
             setUpRecyclerView(recyclerView, listOfAllUsers, parentFragmentManager)
         }
 

@@ -11,8 +11,8 @@ import javax.inject.Inject
 class FriendsFragmentViewModel @Inject constructor(private val userRepository: UserRepository) :
     ViewModel() {
 
-    fun getListOfAllUsers(): LiveData<List<User>> {
-        return userRepository.getListOfAllUsers()
+    fun getListOfAllFriends(): LiveData<List<User>> {
+        return userRepository.getListOfAllFriends()
     }
 
 }
