@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                     openFragment(FriendsFragment.newInstance())
                     true
                 }
-                R.id.second -> {
+                R.id.add_friends -> {
                     openFragment(UserSearchFragment.newInstance())
                     true
                 }

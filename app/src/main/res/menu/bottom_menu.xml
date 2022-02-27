@@ -9,7 +9,7 @@
         android:title="Friends" />
 
     <item
-        android:id="@+id/second"
+        android:id="@+id/add_friends"
         android:enabled="true"
         android:icon="@drawable/baseline_group_24"
         android:title="Add Friends" />
