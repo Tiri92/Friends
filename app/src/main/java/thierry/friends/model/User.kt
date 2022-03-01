@@ -6,8 +6,7 @@ data class User(
     val userEmail: String,
     var userPicture: String,
     var userFcmToken: String,
-    var FriendsRequestsSent: MutableList<String>,
-    var FriendsRequestsReceived: MutableList<String>
+    var listOfFriends: MutableList<String>
 ) {
-    constructor() : this("", "", "", "", "", ArrayList<String>(), ArrayList<String>())
+    constructor() : this("", "", "", "", "", ArrayList<String>())
 }

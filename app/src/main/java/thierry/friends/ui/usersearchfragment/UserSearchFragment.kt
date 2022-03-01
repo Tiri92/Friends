@@ -22,8 +22,7 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
     private val viewModel: UserSearchViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
     private lateinit var recyclerViewForFriendsRequests: RecyclerView
-    private var currentUserInFirestore: User? = null
-    private var userSearchResult: List<User>? = null
+    private var currentUser: User? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,44 +31,66 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
         val binding = FragmentUserSearchBinding.inflate(layoutInflater)
         val rootView = binding.root
 
-        viewModel.listenerOnTheCurrentUserData().addSnapshotListener { value, _ ->
-            if (value != null) {
-                val currentUserInFirestore = value.toObject(User::class.java)
-                if (currentUserInFirestore != null) {
-                    this.currentUserInFirestore = currentUserInFirestore
-                    if (userSearchResult != null) {
-                        setUpRecyclerView(
-                            recyclerView,
-                            userSearchResult!!,
-                            currentUserInFirestore
-                        )
-                    }
+        viewModel.getViewState().observe(viewLifecycleOwner) { userSearchViewState ->
+
+            recyclerView = binding.recyclerviewUserSearch
+
+            if (userSearchViewState.currentUser != null) {
+                this.currentUser = userSearchViewState.currentUser
+                userSearchViewState.userSearchResult?.let { userSearchResult ->
+                    setUpRecyclerView(
+                        recyclerView,
+                        userSearchResult,
+                        userSearchViewState.currentUser!!,
+                        userSearchViewState.listOfFriendsRequestsReceivedById,
+                        userSearchViewState.listOfFriendsRequestsSentById
+                    )
                 }
             }
-        }
 
-        recyclerViewForFriendsRequests = binding.recyclerviewFriendsRequests
-        viewModel.getListOfFriendsRequests().observe(viewLifecycleOwner) { listOfFriendsRequests ->
-            setUpRecyclerViewForFriendsRequests(
-                recyclerViewForFriendsRequests,
-                listOfFriendsRequests
-            )
-        }
-
-        recyclerView = binding.recyclerviewUserSearch
-        binding.userSearchButton.imageTintList = ColorStateList.valueOf(Color.rgb(255, 255, 255))
-        binding.userSearchButton.setOnClickListener {
-            viewModel.searchUser(binding.editTextUserSearch.text.toString())
-        }
-        viewModel.getTheUserSearchResult().observe(viewLifecycleOwner) { userSearchResult ->
-            this.userSearchResult = userSearchResult
-            currentUserInFirestore?.let {
-                setUpRecyclerView(
-                    recyclerView,
-                    userSearchResult,
-                    it
-                )
+            binding.userSearchButton.imageTintList =
+                ColorStateList.valueOf(Color.rgb(255, 255, 255))
+            binding.userSearchButton.setOnClickListener {
+                viewModel.searchUser(binding.editTextUserSearch.text.toString())
             }
+
+            if (userSearchViewState.userSearchResult != null) {
+                userSearchViewState.currentUser?.let {
+                    setUpRecyclerView(
+                        recyclerView, userSearchViewState.userSearchResult!!,
+                        it,
+                        userSearchViewState.listOfFriendsRequestsReceivedById,
+                        userSearchViewState.listOfFriendsRequestsSentById
+                    )
+                }
+                if (userSearchViewState.listOfFriendsRequestsSentById != null) {
+                    setUpRecyclerView(
+                        recyclerView,
+                        userSearchViewState.userSearchResult!!,
+                        userSearchViewState.currentUser!!,
+                        userSearchViewState.listOfFriendsRequestsReceivedById,
+                        userSearchViewState.listOfFriendsRequestsSentById
+                    )
+                }
+            }
+
+            recyclerViewForFriendsRequests = binding.recyclerviewFriendsRequests
+            if (userSearchViewState.listOfFriendsRequestsReceived != null) {
+                setUpRecyclerViewForFriendsRequests(
+                    recyclerViewForFriendsRequests,
+                    userSearchViewState.listOfFriendsRequestsReceived!!
+                )
+                if (!userSearchViewState.userSearchResult.isNullOrEmpty()) {
+                    setUpRecyclerView(
+                        recyclerView,
+                        userSearchViewState.userSearchResult!!,
+                        userSearchViewState.currentUser!!,
+                        userSearchViewState.listOfFriendsRequestsReceivedById,
+                        userSearchViewState.listOfFriendsRequestsSentById
+                    )
+                }
+            }
+
         }
 
         return rootView
@@ -78,14 +99,22 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
     private fun setUpRecyclerView(
         recyclerView: RecyclerView,
         userSearchResult: List<User>,
-        currentUserInFirestore: User
+        currentUser: User,
+        listOfFriendsRequestsReceivedById: List<String>?,
+        listOfFriendsRequestsSentById: List<String>?
     ) {
         val myLayoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = myLayoutManager
         recyclerView.adapter =
-            UserSearchAdapter(userSearchResult, currentUserInFirestore, this)
+            UserSearchAdapter(
+                userSearchResult,
+                currentUser,
+                listOfFriendsRequestsReceivedById,
+                listOfFriendsRequestsSentById,
+                this
+            )
     }
 
     private fun setUpRecyclerViewForFriendsRequests(
@@ -100,65 +129,52 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
     }
 
     override fun onFriendRequestClicked(userWhoReceivedFriendRequest: User) {
-        currentUserInFirestore?.FriendsRequestsSent?.add(userWhoReceivedFriendRequest.uid)
-        currentUserInFirestore?.let { viewModel.setCurrentUserData(it) }
-        viewModel.createFriendsRequestsSentCollection(
+        viewModel.createTheFriendRequestSent(
             userWhoReceivedFriendRequest.uid,
             userWhoReceivedFriendRequest
         )
-        userWhoReceivedFriendRequest.FriendsRequestsReceived.add(currentUserInFirestore?.uid.toString())
-        viewModel.setUserDataWhoReceivedFriendRequest(
-            userWhoReceivedFriendRequest.uid,
-            userWhoReceivedFriendRequest
-        )
-        currentUserInFirestore?.let {
-            viewModel.createFriendsRequestsReceivedCollection(
+        currentUser?.let { currentUser ->
+            viewModel.createTheFriendRequestReceived(
                 userWhoReceivedFriendRequest.uid,
-                it.uid,
-                it
+                currentUser.uid,
+                currentUser
             )
         }
         val fcmNotification = FcmNotificationsSender(
             userWhoReceivedFriendRequest.userFcmToken,
             "Friend request",
-            "from ${currentUserInFirestore?.username}",
+            "from ${currentUser?.username}",
             requireActivity()
         )
         fcmNotification.sendNotification()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.cleanUpTheLiveData()
-    }
-
-    companion object {
-        fun newInstance() = UserSearchFragment()
     }
 
     override fun friendRequestAccepted(newFriend: User) {
         val fcmNotification = FcmNotificationsSender(
             newFriend.userFcmToken,
             "Friend request Accepted !",
-            "${currentUserInFirestore?.username} has accepted your friend request !",
+            "${currentUser?.username} has accepted your friend request !",
             requireActivity()
         )
         fcmNotification.sendNotification()
-        viewModel.addingUserToFriendsCollection(
-            currentUserInFirestore?.uid.toString(),
-            newFriend.uid,
-            newFriend
-        )
-        currentUserInFirestore?.let {
-            viewModel.addingUserToFriendsCollection(
-                newFriend.uid, it.uid,
-                it
-            )
-        }
+        currentUser?.listOfFriends?.add(newFriend.uid)
+        currentUser?.let { currentUser -> viewModel.setCurrentUserData(currentUser) }
+        currentUser?.uid?.let { currentUser -> newFriend.listOfFriends.add(currentUser) }
+        viewModel.setUserDataWhoSentFriendRequest(newFriend.uid, newFriend)
+        viewModel.deleteFriendsRequestsWhenItIsProcessed(currentUser!!.uid, newFriend.uid)
     }
 
-    override fun friendRequestRefused() {
+    override fun friendRequestRefused(userWhoRefused: User) {
+        viewModel.deleteFriendsRequestsWhenItIsProcessed(currentUser!!.uid, userWhoRefused.uid)
+    }
 
+    companion object {
+        fun newInstance() = UserSearchFragment()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.cleanUpTheLiveData()
     }
 
 }

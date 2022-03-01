@@ -16,7 +16,7 @@ class FriendRequestAdapter(
 
     interface OnFriendRequestResponse {
         fun friendRequestAccepted(newFriend: User)
-        fun friendRequestRefused()
+        fun friendRequestRefused(userWhoRefused: User)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,7 +34,7 @@ class FriendRequestAdapter(
         }
 
         holder.refuseFriendRequestButton.setOnClickListener {
-            callback?.friendRequestRefused()
+            callback?.friendRequestRefused(userSearchResult[position])
         }
     }
 

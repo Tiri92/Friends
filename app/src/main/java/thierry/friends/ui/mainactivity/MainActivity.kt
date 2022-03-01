@@ -27,7 +27,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.databinding.ActivityMainBinding
-import thierry.friends.model.User
 import thierry.friends.ui.friendsfragment.FriendsFragment
 import thierry.friends.ui.loginactivity.LoginActivity
 import thierry.friends.ui.usersearchfragment.UserSearchFragment
@@ -83,28 +82,25 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        viewModel.listenerOnTheCurrentUserData().addSnapshotListener { value, _ ->
-            if (value != null) {
-                val currentUserInFirestore = value.toObject(User::class.java)
-                if (currentUserInFirestore != null) {
-                    val userEmailTextView: TextView =
-                        binding.navView.getHeaderView(0).findViewById(R.id.user_email)
-                    userEmailTextView.text = currentUserInFirestore.userEmail
-                    val usernameTextView: TextView =
-                        binding.navView.getHeaderView(0).findViewById(R.id.username)
-                    usernameTextView.text = currentUserInFirestore.username
-                    val userPic: ImageView =
-                        binding.navView.getHeaderView(0).findViewById(R.id.imageview)
-                    Glide.with(baseContext).load(currentUserInFirestore.userPicture).circleCrop()
-                        .into(userPic)
-                    FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val token = task.result
-                            Log.i("THIERRYBITAR", token)
-                            if (currentUserInFirestore.userFcmToken != token) {
-                                currentUserInFirestore.userFcmToken = token
-                                viewModel.setUserFcmToken(currentUserInFirestore)
-                            }
+        viewModel.getTheCurrentUserData().observe(this) { currentUserInFirestore ->
+            if (currentUserInFirestore != null) {
+                val userEmailTextView: TextView =
+                    binding.navView.getHeaderView(0).findViewById(R.id.user_email)
+                userEmailTextView.text = currentUserInFirestore.userEmail
+                val usernameTextView: TextView =
+                    binding.navView.getHeaderView(0).findViewById(R.id.username)
+                usernameTextView.text = currentUserInFirestore.username
+                val userPic: ImageView =
+                    binding.navView.getHeaderView(0).findViewById(R.id.imageview)
+                Glide.with(baseContext).load(currentUserInFirestore.userPicture).circleCrop()
+                    .into(userPic)
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val token = task.result
+                        Log.i("THIERRYBITAR", token)
+                        if (currentUserInFirestore.userFcmToken != token) {
+                            currentUserInFirestore.userFcmToken = token
+                            viewModel.setUserFcmToken(currentUserInFirestore)
                         }
                     }
                 }

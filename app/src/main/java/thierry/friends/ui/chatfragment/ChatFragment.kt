@@ -18,7 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.databinding.FragmentChatBinding
 import thierry.friends.model.Message
-import thierry.friends.model.User
 import thierry.friends.service.FcmNotificationsSender
 import java.util.*
 
@@ -72,13 +71,10 @@ class ChatFragment : Fragment() {
         }
         viewModel.callMessagesBetweenTwoUsers(currentUserId, uidOfReceiver.toString())
 
-        viewModel.listenerOnTheCurrentUserData().addSnapshotListener { value, _ ->
-            if (value != null) {
-                val currentUserInFirestore = value.toObject(User::class.java)
-                if (currentUserInFirestore != null) {
-                    currentUserPicture = currentUserInFirestore.userPicture
-                    currentUsername = currentUserInFirestore.username
-                }
+        viewModel.getTheCurrentUserData().observe(viewLifecycleOwner) { currentUserInFirestore ->
+            if (currentUserInFirestore != null) {
+                currentUserPicture = currentUserInFirestore.userPicture
+                currentUsername = currentUserInFirestore.username
             }
         }
 

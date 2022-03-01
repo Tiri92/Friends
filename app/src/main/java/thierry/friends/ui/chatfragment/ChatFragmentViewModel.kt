@@ -2,9 +2,9 @@ package thierry.friends.ui.chatfragment
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.firestore.DocumentReference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import thierry.friends.model.Message
+import thierry.friends.model.User
 import thierry.friends.repositories.firestore.ChatRepository
 import thierry.friends.repositories.firestore.UserRepository
 import javax.inject.Inject
@@ -36,8 +36,8 @@ class ChatFragmentViewModel @Inject constructor(
         return userRepository.getCurrentUserId()
     }
 
-    fun listenerOnTheCurrentUserData(): DocumentReference {
-        return userRepository.listenerOnTheCurrentUserData()
+    fun getTheCurrentUserData(): LiveData<User> {
+        return userRepository.getTheCurrentUserData()
     }
 
 }

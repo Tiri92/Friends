@@ -1,9 +1,9 @@
 package thierry.friends.ui.mainactivity
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.DocumentReference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import thierry.friends.model.User
 import thierry.friends.repositories.firestore.UserRepository
@@ -21,8 +21,8 @@ class MainActivityViewModel @Inject constructor(private val userRepository: User
         return userRepository.logout(context)
     }
 
-    fun listenerOnTheCurrentUserData(): DocumentReference {
-        return userRepository.listenerOnTheCurrentUserData()
+    fun getTheCurrentUserData(): LiveData<User> {
+        return userRepository.getTheCurrentUserData()
     }
 
     fun setUserFcmToken(currentUser: User) {

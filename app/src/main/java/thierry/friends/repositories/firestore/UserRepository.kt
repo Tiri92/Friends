@@ -15,7 +15,6 @@ import javax.inject.Singleton
 private const val COLLECTION_USERS = "users"
 private const val COLLECTION_FRIENDS_REQUESTS_SENT = "friendsRequestsSent"
 private const val COLLECTION_FRIENDS_REQUESTS_RECEIVED = "friendsRequestsReceived"
-private const val COLLECTION_FRIENDS = "friends"
 
 @Singleton
 class UserRepository @Inject constructor() {
@@ -62,7 +61,6 @@ class UserRepository @Inject constructor() {
                 email.toString(),
                 urlPicture,
                 "",
-                ArrayList(),
                 ArrayList()
             )
             getDataOnCurrentUser().addOnSuccessListener { documentSnapshot ->
@@ -80,44 +78,63 @@ class UserRepository @Inject constructor() {
     }
 
     /** Get information in real time from the firestore about the current user **/
-    fun listenerOnTheCurrentUserData(): DocumentReference {
-        return getUsersCollection().document(getCurrentUserId())
-    }
 
-    /** Get all the friends of the current user **/
+    private val currentUser = MutableLiveData<User>()
 
-    private val listOfAllFriends = MutableLiveData<List<User>>()
-
-    private fun getAllFiends() {
-        getUsersCollection().document(getCurrentUserId()).collection(COLLECTION_FRIENDS)
-            .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
-                val mutableListOfAllFriends: MutableList<User> = mutableListOf()
-                if (value != null) {
-                    for (document in value.documents) {
-                        val myUser = document.toObject(User::class.java)
-                        if (myUser?.uid != getCurrentUserId()) {
-                            myUser?.let { mutableListOfAllFriends.add(it) }
-                        }
-                    }
-                }
-                listOfAllFriends.setValue(mutableListOfAllFriends)
+    private fun callListenerOnTheCurrentUserData() {
+        getUsersCollection().document(getCurrentUserId()).addSnapshotListener { value, _ ->
+            if (value != null) {
+                val currentUserInFirestore = value.toObject(User::class.java)
+                currentUser.value = currentUserInFirestore!!
             }
+        }
     }
 
-    fun getListOfAllFriends(): LiveData<List<User>> {
-        getAllFiends()
-        return listOfAllFriends
+    fun getTheCurrentUserData(): LiveData<User> {
+        callListenerOnTheCurrentUserData()
+        return currentUser
     }
 
     /** **/
 
-    /** Set or update FCM Token of the current user to allow him to be notified when he receives messages **/
+    /** Get all the Users of the app **/
+
+    private val listOfAllUsers = MutableLiveData<List<User>>()
+
+    private fun getAllUsers() {
+        getUsersCollection()
+            .addSnapshotListener { value: QuerySnapshot?, _: FirebaseFirestoreException? ->
+                val mutableListOfAllUsers: MutableList<User> = mutableListOf()
+                if (value != null) {
+                    for (document in value.documents) {
+                        val myUser = document.toObject(User::class.java)
+                        if (myUser?.uid != getCurrentUserId()) {
+                            myUser?.let { mutableListOfAllUsers.add(it) }
+                        }
+                    }
+                }
+                listOfAllUsers.setValue(mutableListOfAllUsers)
+            }
+    }
+
+    fun getListOfAllUsers(): LiveData<List<User>> {
+        getAllUsers()
+        return listOfAllUsers
+    }
+
+    /** **/
+
+    /** Set or update FCM Token of the current user to allow him to be notified when he receives messages
+     *  Add a user to the friend list of the current user if he accept the friend request
+     **/
     fun setCurrentUserData(updatedUser: User) {
         getUsersCollection().document(getCurrentUserId()).set(updatedUser)
     }
 
-    /** Set the user data that received a friend request to allow him to accept or refuse the friend request **/
-    fun setUserDataWhoReceivedFriendRequest(
+    /** Set the user data that received a friend request to allow him to accept or refuse the friend request
+     *  Add a user to the friends list of the user who sent a friend request if it is accepted
+     **/
+    fun setUserDataWhoSentFriendRequest(
         uidWhoReceivedFriendRequest: String,
         updatedUser: User
     ) {
@@ -125,7 +142,7 @@ class UserRepository @Inject constructor() {
     }
 
     /** Create a friends requests sent Collection to retrieve the list of users to whom the current user has sent a friend request **/
-    fun createFriendsRequestsSentCollection(uidWhoReceived: String, userWhoReceived: User) {
+    fun createTheFriendRequestSent(uidWhoReceived: String, userWhoReceived: User) {
         getUsersCollection().document(getCurrentUserId()).collection(
             COLLECTION_FRIENDS_REQUESTS_SENT
         )
@@ -133,7 +150,7 @@ class UserRepository @Inject constructor() {
     }
 
     /** Create a friends requests received Collection to get a list of friends requests that user can consult for accept or refuse them **/
-    fun createFriendsRequestsReceivedCollection(
+    fun createTheFriendRequestReceived(
         uidWhoReceived: String,
         uidWhoSent: String,
         userWhoSent: User
@@ -165,35 +182,58 @@ class UserRepository @Inject constructor() {
             }
     }
 
-    fun getTheUserSearchResult(): LiveData<List<User>> {
+    fun getUserSearchResult(): LiveData<List<User>> {
         return userSearchResult
     }
 
     /** **/
 
-    /** Get the list of friends requests of the current user to display it in a recyclerview and enable the current user to accept or refuse them **/
+    /** Get the lists of friends requests of the current user to display it in a recyclerview and enable the current user to accept or refuse them **/
 
-    private val listOfFriendsRequests = MutableLiveData<List<User>>()
+    private val listOfFriendsRequestsReceived = MutableLiveData<List<User>>()
 
-    private fun callListOfFriendsRequests() {
+    private fun callListOfFriendsRequestsReceived() {
         getUsersCollection().document(getCurrentUserId()).collection(
             COLLECTION_FRIENDS_REQUESTS_RECEIVED
         )
             .addSnapshotListener { value, _ ->
-                val mutableListOfFriendsRequests: MutableList<User> = mutableListOf()
+                val mutableListOfFriendsRequestsReceived: MutableList<User> = mutableListOf()
                 if (value != null) {
                     for (document in value.documents) {
                         val myUser = document.toObject(User::class.java)
-                        myUser?.let { mutableListOfFriendsRequests.add(it) }
+                        myUser?.let { mutableListOfFriendsRequestsReceived.add(it) }
                     }
                 }
-                listOfFriendsRequests.setValue(mutableListOfFriendsRequests)
+                listOfFriendsRequestsReceived.setValue(mutableListOfFriendsRequestsReceived)
             }
     }
 
-    fun getListOfFriendsRequests(): LiveData<List<User>> {
-        callListOfFriendsRequests()
-        return listOfFriendsRequests
+    fun getListOfFriendsRequestsReceived(): LiveData<List<User>> {
+        callListOfFriendsRequestsReceived()
+        return listOfFriendsRequestsReceived
+    }
+
+    private val listOfFriendsRequestsSent = MutableLiveData<List<String>>()
+
+    private fun callListOfFriendsRequestsSent() {
+        getUsersCollection().document(getCurrentUserId()).collection(
+            COLLECTION_FRIENDS_REQUESTS_SENT
+        )
+            .addSnapshotListener { value, _ ->
+                val mutableListOfFriendsRequestsSent: MutableList<String> = mutableListOf()
+                if (value != null) {
+                    for (document in value.documents) {
+                        val myUser = document.toObject(User::class.java)
+                        myUser?.uid?.let { mutableListOfFriendsRequestsSent.add(it) }
+                    }
+                }
+                listOfFriendsRequestsSent.setValue(mutableListOfFriendsRequestsSent)
+            }
+    }
+
+    fun getListOfFriendsRequestsSent(): LiveData<List<String>> {
+        callListOfFriendsRequestsSent()
+        return listOfFriendsRequestsSent
     }
 
     /** **/
@@ -201,17 +241,15 @@ class UserRepository @Inject constructor() {
     /** Assign an empty list to the livedata of the UserSearchFragment when we pass in the onDestroy to avoid that the livedata display her last value when we come back to the fragment **/
     fun cleanUpTheLiveData() {
         userSearchResult.value = mutableListOf()
-        listOfFriendsRequests.value = mutableListOf()
+        listOfFriendsRequestsReceived.value = mutableListOf()
     }
 
-    /** When the current user accept a friend request we add the user who sent him this friend request to the list of friends of the current user **/
-    fun addingUserToFriendsCollection(uid: String, friendId: String, friend: User) {
-        getUsersCollection().document(uid).collection(COLLECTION_FRIENDS).document(friendId)
-            .set(friend)
+    /** When the current user accept or refuse a friend request we delete that friend request for both users **/
+    fun deleteFriendsRequestsWhenItIsProcessed(uid: String, friendId: String) {
         getUsersCollection().document(uid).collection(COLLECTION_FRIENDS_REQUESTS_RECEIVED)
             .document(friendId).delete()
-        getUsersCollection().document(uid).collection(COLLECTION_FRIENDS_REQUESTS_SENT)
-            .document(friendId).delete()
+        getUsersCollection().document(friendId).collection(COLLECTION_FRIENDS_REQUESTS_SENT)
+            .document(uid).delete()
     }
 
 }

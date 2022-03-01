@@ -27,8 +27,13 @@ class FriendsFragment : Fragment() {
         val rootView = binding.root
 
         recyclerView = binding.recyclerviewFriends
-        viewModel.getListOfAllFriends().observe(viewLifecycleOwner) { listOfAllUsers ->
-            setUpRecyclerView(recyclerView, listOfAllUsers, parentFragmentManager)
+        viewModel.getViewState().observe(viewLifecycleOwner) { friendsViewState ->
+            if (!friendsViewState.listOfFriends.isNullOrEmpty()) {
+                setUpRecyclerView(
+                    recyclerView,
+                    friendsViewState.listOfFriends!!, parentFragmentManager
+                )
+            }
         }
 
         return rootView
@@ -49,4 +54,5 @@ class FriendsFragment : Fragment() {
     companion object {
         fun newInstance() = FriendsFragment()
     }
+
 }

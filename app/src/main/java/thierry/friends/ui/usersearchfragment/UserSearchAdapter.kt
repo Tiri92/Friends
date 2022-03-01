@@ -11,6 +11,8 @@ import thierry.friends.model.User
 class UserSearchAdapter(
     private val userSearchResult: List<User>,
     private val currentUserInFirestore: User,
+    private val listOfFriendsRequests: List<String>?,
+    private val listOfFriendsRequestsSent: List<String>?,
     callback: OnFriendRequestClicked
 ) :
     RecyclerView.Adapter<UserSearchAdapter.ViewHolder>() {
@@ -29,9 +31,9 @@ class UserSearchAdapter(
         holder.username.text = userSearchResult[position].username
         Glide.with(holder.userPic).load(userSearchResult[position].userPicture).circleCrop()
             .into(holder.userPic)
-        if (currentUserInFirestore.FriendsRequestsSent.contains(userSearchResult[position].uid) || currentUserInFirestore.FriendsRequestsReceived.contains(
+        if (listOfFriendsRequests!!.contains(userSearchResult[position].uid) || listOfFriendsRequestsSent!!.contains(
                 userSearchResult[position].uid
-            )
+            ) || currentUserInFirestore.listOfFriends.contains(userSearchResult[position].uid)
         ) {
             holder.friendRequest.isVisible = false
         } else {
