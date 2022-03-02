@@ -31,7 +31,6 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
         val binding = FragmentUserSearchBinding.inflate(layoutInflater)
         val rootView = binding.root
 
-        viewModel.callListOfFriendsRequestsReceived()
         viewModel.getViewState().observe(viewLifecycleOwner) { userSearchViewState ->
 
             recyclerView = binding.recyclerviewUserSearch
@@ -171,11 +170,6 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
 
     companion object {
         fun newInstance() = UserSearchFragment()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        viewModel.cleanUpTheLiveData()
     }
 
 }

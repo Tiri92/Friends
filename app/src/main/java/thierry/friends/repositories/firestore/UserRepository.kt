@@ -192,7 +192,7 @@ class UserRepository @Inject constructor() {
 
     private val listOfFriendsRequestsReceived = MutableLiveData<List<User>>()
 
-    fun callListOfFriendsRequestsReceived() {
+    private fun callListOfFriendsRequestsReceived() {
         getUsersCollection().document(getCurrentUserId()).collection(
             COLLECTION_FRIENDS_REQUESTS_RECEIVED
         )
@@ -209,6 +209,7 @@ class UserRepository @Inject constructor() {
     }
 
     fun getListOfFriendsRequestsReceived(): LiveData<List<User>> {
+        callListOfFriendsRequestsReceived()
         return listOfFriendsRequestsReceived
     }
 
@@ -236,12 +237,6 @@ class UserRepository @Inject constructor() {
     }
 
     /** **/
-
-    /** Assign an empty list to the livedata of the UserSearchFragment when we pass in the onDestroy to avoid that the livedata display her last value when we come back to the fragment **/
-    fun cleanUpTheLiveData() {
-        userSearchResult.value = mutableListOf()
-        listOfFriendsRequestsReceived.value = mutableListOf()
-    }
 
     /** When the current user accept or refuse a friend request we delete that friend request for both users **/
     fun deleteFriendsRequestsWhenItIsProcessed(uid: String, friendId: String) {

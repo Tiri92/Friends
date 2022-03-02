@@ -32,7 +32,7 @@ class UserSearchViewModel @Inject constructor(private val userRepository: UserRe
             }
         }
         mediatorLiveData.addSource(userSearchResult) {
-            if (!it.isNullOrEmpty()) {
+            if (it != null) {
                 combine(
                     currentUserData.value,
                     it,
@@ -92,10 +92,6 @@ class UserSearchViewModel @Inject constructor(private val userRepository: UserRe
         userRepository.searchUser(usernameTyped)
     }
 
-    fun callListOfFriendsRequestsReceived() {
-        userRepository.callListOfFriendsRequestsReceived()
-    }
-
     fun setCurrentUserData(updatedUser: User) {
         userRepository.setCurrentUserData(updatedUser)
     }
@@ -121,10 +117,6 @@ class UserSearchViewModel @Inject constructor(private val userRepository: UserRe
             uidWhoSent,
             userWhoSent
         )
-    }
-
-    fun cleanUpTheLiveData() {
-        userRepository.cleanUpTheLiveData()
     }
 
     fun deleteFriendsRequestsWhenItIsProcessed(uid: String, friendId: String) {
