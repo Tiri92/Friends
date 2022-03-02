@@ -192,7 +192,7 @@ class UserRepository @Inject constructor() {
 
     private val listOfFriendsRequestsReceived = MutableLiveData<List<User>>()
 
-    private fun callListOfFriendsRequestsReceived() {
+    fun callListOfFriendsRequestsReceived() {
         getUsersCollection().document(getCurrentUserId()).collection(
             COLLECTION_FRIENDS_REQUESTS_RECEIVED
         )
@@ -209,7 +209,6 @@ class UserRepository @Inject constructor() {
     }
 
     fun getListOfFriendsRequestsReceived(): LiveData<List<User>> {
-        callListOfFriendsRequestsReceived()
         return listOfFriendsRequestsReceived
     }
 

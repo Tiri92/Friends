@@ -8,7 +8,7 @@ import thierry.friends.databinding.FriendRequestItemBinding
 import thierry.friends.model.User
 
 class FriendRequestAdapter(
-    private val userSearchResult: List<User>,
+    private val listOfFriendsRequestsReceived: List<User>,
     callback: OnFriendRequestResponse
 ) :
     RecyclerView.Adapter<FriendRequestAdapter.ViewHolder>() {
@@ -26,20 +26,21 @@ class FriendRequestAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.username.text = userSearchResult[position].username
-        Glide.with(holder.userPic).load(userSearchResult[position].userPicture).circleCrop()
+        holder.username.text = listOfFriendsRequestsReceived[position].username
+        Glide.with(holder.userPic).load(listOfFriendsRequestsReceived[position].userPicture)
+            .circleCrop()
             .into(holder.userPic)
         holder.acceptFriendRequestButton.setOnClickListener {
-            callback?.friendRequestAccepted(userSearchResult[position])
+            callback?.friendRequestAccepted(listOfFriendsRequestsReceived[position])
         }
 
         holder.refuseFriendRequestButton.setOnClickListener {
-            callback?.friendRequestRefused(userSearchResult[position])
+            callback?.friendRequestRefused(listOfFriendsRequestsReceived[position])
         }
     }
 
     override fun getItemCount(): Int {
-        return userSearchResult.count()
+        return listOfFriendsRequestsReceived.count()
     }
 
     class ViewHolder(binding: FriendRequestItemBinding) : RecyclerView.ViewHolder(binding.root) {

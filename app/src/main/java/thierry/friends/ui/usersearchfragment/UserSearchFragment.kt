@@ -31,6 +31,7 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
         val binding = FragmentUserSearchBinding.inflate(layoutInflater)
         val rootView = binding.root
 
+        viewModel.callListOfFriendsRequestsReceived()
         viewModel.getViewState().observe(viewLifecycleOwner) { userSearchViewState ->
 
             recyclerView = binding.recyclerviewUserSearch
