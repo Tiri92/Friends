@@ -16,18 +16,37 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
         MediatorLiveData<FriendsViewState>()
     private var currentUser = userRepository.getTheCurrentUserData()
     private var listOfAllUsers = userRepository.getListOfAllUsers()
+    private var listSortedByLastFriendsCurrentUserSpokeWith =
+        userRepository.getListSortedByLastFriendsCurrentUserSpokeWith()
 
     init {
 
         mediatorLiveData.addSource(currentUser) { currentUser ->
             if (currentUser != null) {
-                combine(currentUser, listOfAllUsers.value)
+                combine(
+                    currentUser,
+                    listOfAllUsers.value,
+                    listSortedByLastFriendsCurrentUserSpokeWith.value
+                )
             }
         }
 
         mediatorLiveData.addSource(listOfAllUsers) { listOfAllUsers ->
             if (!listOfAllUsers.isNullOrEmpty()) {
-                combine(currentUser.value, listOfAllUsers)
+                combine(
+                    currentUser.value,
+                    listOfAllUsers,
+                    listSortedByLastFriendsCurrentUserSpokeWith.value
+                )
+            }
+        }
+        mediatorLiveData.addSource(listSortedByLastFriendsCurrentUserSpokeWith) { listSortedByLastFriendsCurrentUserSpokeWith ->
+            if (!listSortedByLastFriendsCurrentUserSpokeWith.isNullOrEmpty()) {
+                combine(
+                    currentUser.value,
+                    listOfAllUsers.value,
+                    listSortedByLastFriendsCurrentUserSpokeWith
+                )
             }
         }
 
@@ -35,7 +54,8 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
 
     private fun combine(
         currentUser: User?,
-        listOfAllUsers: List<User>?
+        listOfAllUsers: List<User>?,
+        listSortedByLastFriendsCurrentUserSpokeWith: List<String>?
     ) {
         val viewState = FriendsViewState()
         if (currentUser != null && !listOfAllUsers.isNullOrEmpty()) {
@@ -47,8 +67,31 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
                     listOfFriends.add(friendFound)
                 }
             }
-            viewState.listOfFriends = listOfFriends
-            mediatorLiveData.value = viewState
+            if (!listSortedByLastFriendsCurrentUserSpokeWith.isNullOrEmpty()) {
+                val listOfFriendsSorted = mutableListOf<User>()
+                listOfFriendsSorted.clear()
+                listSortedByLastFriendsCurrentUserSpokeWith.forEach { id ->
+                    val friendFound = listOfFriends.find { predicate -> predicate.uid == id }
+                    if (friendFound != null) {
+                        listOfFriendsSorted.add(friendFound)
+                    }
+                }
+                if (listOfFriendsSorted.count() != listOfFriends.count()) {
+                    listOfFriends.forEach { friend ->
+                        if (!listOfFriendsSorted.contains(friend)) {
+                            listOfFriendsSorted.add(friend)
+                        }
+                    }
+                    viewState.listOfFriends = listOfFriendsSorted
+                    mediatorLiveData.value = viewState
+                } else {
+                    viewState.listOfFriends = listOfFriendsSorted
+                    mediatorLiveData.value = viewState
+                }
+            } else {
+                viewState.listOfFriends = listOfFriends
+                mediatorLiveData.value = viewState
+            }
         }
     }
 

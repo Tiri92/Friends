@@ -17,6 +17,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.databinding.FragmentChatBinding
+import thierry.friends.model.LastMessage
 import thierry.friends.model.Message
 import thierry.friends.service.FcmNotificationsSender
 import java.util.*
@@ -91,6 +92,19 @@ class ChatFragment : Fragment() {
                     Arrays.asList(currentUserId, uidOfReceiver), currentUserPicture
                 )
                 viewModel.createNewMessage(message)
+                viewModel.createLastMessagesSentOrReceived(
+                    currentUserId,
+                    usernameOfReceiver.toString(),
+                    LastMessage(
+                        Calendar.getInstance().timeInMillis.toString(),
+                        uidOfReceiver.toString()
+                    )
+                )
+                viewModel.createLastMessagesSentOrReceived(
+                    uidOfReceiver.toString(),
+                    currentUsername,
+                    LastMessage(Calendar.getInstance().timeInMillis.toString(), currentUserId)
+                )
                 val fcmNotification = FcmNotificationsSender(
                     userFcmToken,
                     currentUsername,

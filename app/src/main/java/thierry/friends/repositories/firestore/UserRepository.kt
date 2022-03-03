@@ -9,12 +9,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
 import thierry.friends.model.User
+import thierry.friends.model.LastMessage
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.ArrayList
 
 private const val COLLECTION_USERS = "users"
 private const val COLLECTION_FRIENDS_REQUESTS_SENT = "friendsRequestsSent"
 private const val COLLECTION_FRIENDS_REQUESTS_RECEIVED = "friendsRequestsReceived"
+private const val COLLECTION_LAST_MESSAGES = "lastMessages"
 
 @Singleton
 class UserRepository @Inject constructor() {
@@ -247,5 +250,45 @@ class UserRepository @Inject constructor() {
         getUsersCollection().document(friendId).collection(COLLECTION_FRIENDS_REQUESTS_SENT)
             .document(uid).delete()
     }
+
+    /** Create the Last Messages collection so you can sort the current user's list of friends based on the ones they spoke with most recently **/
+    fun createLastMessagesSentOrReceived(uid: String, username: String, lastMessage: LastMessage) {
+        getUsersCollection().document(uid).collection(COLLECTION_LAST_MESSAGES).document(username)
+            .set(lastMessage)
+    }
+
+    /** Get the list of id of friends of the current user sorted by the ones they spoke with most recently **/
+
+    private val listSortedByLastFriendsCurrentUserSpokeWith = MutableLiveData<List<String>>()
+
+    private fun callListSortedByLastFriendsCurrentUserSpokeWith() {
+        getUsersCollection().document(getCurrentUserId()).collection(
+            COLLECTION_LAST_MESSAGES
+        ).orderBy("date", Query.Direction.DESCENDING)
+            .addSnapshotListener { value, _ ->
+                val mutableListSortedByLastFriendsCurrentUserSpokeWith: MutableList<String> =
+                    mutableListOf()
+                if (value != null) {
+                    for (document in value.documents) {
+                        val lastMessage = document.toObject(LastMessage::class.java)
+                        lastMessage?.uid?.let {
+                            mutableListSortedByLastFriendsCurrentUserSpokeWith.add(
+                                it
+                            )
+                        }
+                    }
+                }
+                listSortedByLastFriendsCurrentUserSpokeWith.setValue(
+                    mutableListSortedByLastFriendsCurrentUserSpokeWith
+                )
+            }
+    }
+
+    fun getListSortedByLastFriendsCurrentUserSpokeWith(): LiveData<List<String>> {
+        callListSortedByLastFriendsCurrentUserSpokeWith()
+        return listSortedByLastFriendsCurrentUserSpokeWith
+    }
+
+    /** **/
 
 }
