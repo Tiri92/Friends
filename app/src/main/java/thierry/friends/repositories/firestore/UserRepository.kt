@@ -85,7 +85,9 @@ class UserRepository @Inject constructor() {
         getUsersCollection().document(getCurrentUserId()).addSnapshotListener { value, _ ->
             if (value != null) {
                 val currentUserInFirestore = value.toObject(User::class.java)
-                currentUser.value = currentUserInFirestore!!
+                currentUserInFirestore?.let {
+                    currentUser.value = it
+                }
             }
         }
     }
