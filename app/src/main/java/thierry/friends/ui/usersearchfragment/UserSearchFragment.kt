@@ -141,7 +141,7 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
             )
         }
         val fcmNotification = FcmNotificationsSender(
-            userWhoReceivedFriendRequest.userFcmToken,
+            userWhoReceivedFriendRequest.userFcmToken, "Friend Request",
             "Friend request",
             "from ${currentUser?.username}",
             requireActivity()
@@ -151,7 +151,7 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
 
     override fun friendRequestAccepted(newFriend: User) {
         val fcmNotification = FcmNotificationsSender(
-            newFriend.userFcmToken,
+            newFriend.userFcmToken, "Friend Request",
             "Friend request Accepted !",
             "${currentUser?.username} has accepted your friend request !",
             requireActivity()

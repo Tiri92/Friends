@@ -21,11 +21,16 @@ class FcmMessagingService : FirebaseMessagingService() {
         Log.i("THIERRYBITAR", "Message data payload: ${remoteMessage.data}")
 
         if (remoteMessage.notification != null) {
-            val body = remoteMessage.notification!!.body
+            val type = remoteMessage.notification!!.tag
             val title = remoteMessage.notification!!.title
+            val body = remoteMessage.notification!!.body
             Log.i("THIERRYBITAR", "Message Notification Title: $title")
             Log.i("THIERRYBITAR", "Message Notification Body: $body")
-            if (!MainActivity.isChatFragmentOpen()) {
+            if (type == "Message") {
+                if (!MainActivity.isChatFragmentOpen()) {
+                    showNotification(title.toString(), body.toString())
+                }
+            } else {
                 showNotification(title.toString(), body.toString())
             }
         }

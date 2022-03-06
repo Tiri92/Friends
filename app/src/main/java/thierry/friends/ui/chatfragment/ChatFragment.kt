@@ -108,7 +108,7 @@ class ChatFragment : Fragment() {
                     LastMessage(Calendar.getInstance().timeInMillis.toString(), currentUserId)
                 )
                 val fcmNotification = FcmNotificationsSender(
-                    userFcmToken,
+                    userFcmToken, "Message",
                     currentUsername,
                     binding.editTextMessage.text.toString(),
                     requireActivity()

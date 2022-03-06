@@ -13,6 +13,7 @@ import thierry.friends.R
 
 class FcmNotificationsSender(
     private var userFcmToken: String? = null,
+    private var type: String? = null,
     private var title: String? = null,
     private var body: String? = null,
     private var mActivity: Activity? = null
@@ -27,6 +28,7 @@ class FcmNotificationsSender(
         try {
             mainObj.put("to", userFcmToken)
             val notificationObject = JSONObject()
+            notificationObject.put("tag", type)
             notificationObject.put("title", title)
             notificationObject.put("body", body)
             notificationObject.put("icon", R.drawable.baseline_chat_24)
