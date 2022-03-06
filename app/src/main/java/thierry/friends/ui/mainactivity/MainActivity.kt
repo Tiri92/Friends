@@ -176,4 +176,15 @@ class MainActivity : AppCompatActivity() {
             })
     }
 
+    companion object {
+        private var isOpen = false
+        fun determineIsChatFragmentOpen(openOrNot: Boolean) {
+            isOpen = openOrNot
+        }
+
+        fun isChatFragmentOpen(): Boolean {
+            return isOpen
+        }
+    }
+
 }

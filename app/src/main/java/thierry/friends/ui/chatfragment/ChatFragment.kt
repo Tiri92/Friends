@@ -20,6 +20,7 @@ import thierry.friends.databinding.FragmentChatBinding
 import thierry.friends.model.LastMessage
 import thierry.friends.model.Message
 import thierry.friends.service.FcmNotificationsSender
+import thierry.friends.ui.mainactivity.MainActivity
 import java.util.*
 
 private const val ARG_UID = "uid"
@@ -45,6 +46,7 @@ class ChatFragment : Fragment() {
             usernameOfReceiver = it.getString(ARG_USERNAME)
             userFcmToken = it.getString(ARG_USER_FCM_TOKEN)
         }
+        MainActivity.determineIsChatFragmentOpen(true)
     }
 
     override fun onCreateView(
@@ -142,6 +144,7 @@ class ChatFragment : Fragment() {
         bottomNav.isVisible = true
         (activity as AppCompatActivity?)!!.supportActionBar!!.title = "Friends"
         (activity as AppCompatActivity?)!!.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        MainActivity.determineIsChatFragmentOpen(false)
     }
 
     companion object {

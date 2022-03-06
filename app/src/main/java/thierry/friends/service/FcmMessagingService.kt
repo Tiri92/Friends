@@ -7,6 +7,7 @@ import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import thierry.friends.R
+import thierry.friends.ui.mainactivity.MainActivity
 
 class FcmMessagingService : FirebaseMessagingService() {
 
@@ -24,7 +25,9 @@ class FcmMessagingService : FirebaseMessagingService() {
             val title = remoteMessage.notification!!.title
             Log.i("THIERRYBITAR", "Message Notification Title: $title")
             Log.i("THIERRYBITAR", "Message Notification Body: $body")
-            showNotification(title.toString(), body.toString())
+            if (!MainActivity.isChatFragmentOpen()) {
+                showNotification(title.toString(), body.toString())
+            }
         }
     }
 
