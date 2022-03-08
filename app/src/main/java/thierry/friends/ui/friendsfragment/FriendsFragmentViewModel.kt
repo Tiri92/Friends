@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import thierry.friends.model.LastChatFragmentOpening
+import thierry.friends.model.LastMessage
 import thierry.friends.model.User
 import thierry.friends.repositories.firestore.UserRepository
 import javax.inject.Inject
@@ -18,6 +20,8 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
     private var listOfAllUsers = userRepository.getListOfAllUsers()
     private var listSortedByLastFriendsCurrentUserSpokeWith =
         userRepository.getListSortedByLastFriendsCurrentUserSpokeWith()
+    private var listOfLastChatFragmentOpening = userRepository.getListOfLastChatFragmentOpening()
+    private var listOfLastMessages = userRepository.getListOfLastMessages()
 
     init {
 
@@ -26,7 +30,9 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
                 combine(
                     currentUser,
                     listOfAllUsers.value,
-                    listSortedByLastFriendsCurrentUserSpokeWith.value
+                    listSortedByLastFriendsCurrentUserSpokeWith.value,
+                    listOfLastChatFragmentOpening.value,
+                    listOfLastMessages.value
                 )
             }
         }
@@ -36,7 +42,9 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
                 combine(
                     currentUser.value,
                     listOfAllUsers,
-                    listSortedByLastFriendsCurrentUserSpokeWith.value
+                    listSortedByLastFriendsCurrentUserSpokeWith.value,
+                    listOfLastChatFragmentOpening.value,
+                    listOfLastMessages.value
                 )
             }
         }
@@ -45,7 +53,33 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
                 combine(
                     currentUser.value,
                     listOfAllUsers.value,
-                    listSortedByLastFriendsCurrentUserSpokeWith
+                    listSortedByLastFriendsCurrentUserSpokeWith,
+                    listOfLastChatFragmentOpening.value,
+                    listOfLastMessages.value
+                )
+            }
+        }
+
+        mediatorLiveData.addSource(listOfLastChatFragmentOpening) { listOfLastChatFragmentOpening ->
+            if (!listOfLastChatFragmentOpening.isNullOrEmpty()) {
+                combine(
+                    currentUser.value,
+                    listOfAllUsers.value,
+                    listSortedByLastFriendsCurrentUserSpokeWith.value,
+                    listOfLastChatFragmentOpening,
+                    listOfLastMessages.value
+                )
+            }
+        }
+
+        mediatorLiveData.addSource(listOfLastMessages) { listOfLastMessages ->
+            if (!listOfLastMessages.isNullOrEmpty()) {
+                combine(
+                    currentUser.value,
+                    listOfAllUsers.value,
+                    listSortedByLastFriendsCurrentUserSpokeWith.value,
+                    listOfLastChatFragmentOpening.value,
+                    listOfLastMessages
                 )
             }
         }
@@ -55,7 +89,9 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
     private fun combine(
         currentUser: User?,
         listOfAllUsers: List<User>?,
-        listSortedByLastFriendsCurrentUserSpokeWith: List<String>?
+        listSortedByLastFriendsCurrentUserSpokeWith: List<String>?,
+        listOfLastChatFragmentOpening: List<LastChatFragmentOpening>?,
+        listOfLastMessages: List<LastMessage>?
     ) {
         val viewState = FriendsViewState()
         if (currentUser != null && !listOfAllUsers.isNullOrEmpty()) {
@@ -82,16 +118,36 @@ class FriendsFragmentViewModel @Inject constructor(userRepository: UserRepositor
                             listOfFriendsSorted.add(friend)
                         }
                     }
+                    viewState.currentUser = currentUser
                     viewState.listOfFriends = listOfFriendsSorted
                     mediatorLiveData.value = viewState
                 } else {
+                    viewState.currentUser = currentUser
                     viewState.listOfFriends = listOfFriendsSorted
                     mediatorLiveData.value = viewState
                 }
             } else {
+                viewState.currentUser = currentUser
                 viewState.listOfFriends = listOfFriends
                 mediatorLiveData.value = viewState
             }
+        }
+        listOfLastMessages?.let {
+            val listOfUnreadMessages = mutableListOf<LastMessage>()
+            listOfUnreadMessages.clear()
+            it.forEach { lastMessage ->
+                listOfLastChatFragmentOpening?.let { it2 ->
+                    it2.forEach { lastChatFragmentOpening ->
+                        if (lastMessage.uid == lastChatFragmentOpening.uid) {
+                            if (lastMessage.date > lastChatFragmentOpening.date) {
+                                listOfUnreadMessages.add(lastMessage)
+                            }
+                        }
+                    }
+                }
+            }
+            viewState.listOfUnreadMessages = listOfUnreadMessages
+            mediatorLiveData.value = viewState
         }
     }
 

@@ -17,12 +17,14 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.R
 import thierry.friends.databinding.FragmentChatBinding
+import thierry.friends.model.LastChatFragmentOpening
 import thierry.friends.model.LastMessage
 import thierry.friends.model.Message
 import thierry.friends.service.FcmNotificationsSender
 import thierry.friends.ui.mainactivity.MainActivity
 import java.util.*
 
+private const val ARG_CURRENT_UID = "current uid"
 private const val ARG_UID = "uid"
 private const val ARG_USERNAME = "username"
 private const val ARG_USER_FCM_TOKEN = "user fcm token"
@@ -32,6 +34,7 @@ class ChatFragment : Fragment() {
 
     private val viewModel: ChatFragmentViewModel by viewModels()
     private lateinit var recyclerView: RecyclerView
+    private lateinit var currentUid: String
     private lateinit var currentUserPicture: String
     private lateinit var currentUsername: String
     private lateinit var bottomNav: BottomNavigationView
@@ -42,6 +45,7 @@ class ChatFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            currentUid = it.getString(ARG_CURRENT_UID).toString()
             uidOfReceiver = it.getString(ARG_UID)
             usernameOfReceiver = it.getString(ARG_USERNAME)
             userFcmToken = it.getString(ARG_USER_FCM_TOKEN)
@@ -96,7 +100,7 @@ class ChatFragment : Fragment() {
                 viewModel.createNewMessage(message)
                 viewModel.createLastMessagesSentOrReceived(
                     currentUserId,
-                    usernameOfReceiver.toString(),
+                    uidOfReceiver.toString(),
                     LastMessage(
                         Calendar.getInstance().timeInMillis.toString(),
                         uidOfReceiver.toString()
@@ -104,7 +108,7 @@ class ChatFragment : Fragment() {
                 )
                 viewModel.createLastMessagesSentOrReceived(
                     uidOfReceiver.toString(),
-                    currentUsername,
+                    currentUserId,
                     LastMessage(Calendar.getInstance().timeInMillis.toString(), currentUserId)
                 )
                 val fcmNotification = FcmNotificationsSender(
@@ -145,12 +149,21 @@ class ChatFragment : Fragment() {
         (activity as AppCompatActivity?)!!.supportActionBar!!.title = "Friends"
         (activity as AppCompatActivity?)!!.supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         MainActivity.determineIsChatFragmentOpen(false)
+        viewModel.createLastChatFragmentOpening(
+            currentUid,
+            uidOfReceiver.toString(),
+            LastChatFragmentOpening(
+                uidOfReceiver.toString(),
+                Calendar.getInstance().timeInMillis.toString()
+            )
+        )
     }
 
     companion object {
-        fun newInstance(uid: String, username: String, userFcmToken: String) =
+        fun newInstance(currentUid: String, uid: String, username: String, userFcmToken: String) =
             ChatFragment().apply {
                 arguments = Bundle().apply {
+                    putString(ARG_CURRENT_UID, currentUid)
                     putString(ARG_UID, uid)
                     putString(ARG_USERNAME, username)
                     putString(ARG_USER_FCM_TOKEN, userFcmToken)

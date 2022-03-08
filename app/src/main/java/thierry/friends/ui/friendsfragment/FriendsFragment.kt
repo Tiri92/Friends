@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.databinding.FragmentFriendsBinding
+import thierry.friends.model.LastMessage
 import thierry.friends.model.User
 
 @AndroidEntryPoint
@@ -30,8 +31,9 @@ class FriendsFragment : Fragment() {
         viewModel.getViewState().observe(viewLifecycleOwner) { friendsViewState ->
             if (!friendsViewState.listOfFriends.isNullOrEmpty()) {
                 setUpRecyclerView(
-                    recyclerView,
-                    friendsViewState.listOfFriends!!, parentFragmentManager
+                    recyclerView, friendsViewState.currentUser!!,
+                    friendsViewState.listOfFriends!!,
+                    friendsViewState.listOfUnreadMessages, parentFragmentManager
                 )
             }
         }
@@ -41,14 +43,16 @@ class FriendsFragment : Fragment() {
 
     private fun setUpRecyclerView(
         recyclerView: RecyclerView,
+        currentUser: User,
         listOfAllUsers: List<User>,
+        listOfUnreadMessages: List<LastMessage>?,
         parentFragmentManager: FragmentManager
     ) {
         val myLayoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = myLayoutManager
         recyclerView.adapter =
-            FriendsAdapter(listOfAllUsers, parentFragmentManager)
+            FriendsAdapter(currentUser, listOfAllUsers, listOfUnreadMessages, parentFragmentManager)
     }
 
     companion object {

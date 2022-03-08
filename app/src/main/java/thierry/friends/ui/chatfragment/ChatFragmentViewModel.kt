@@ -3,9 +3,7 @@ package thierry.friends.ui.chatfragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import thierry.friends.model.LastMessage
-import thierry.friends.model.Message
-import thierry.friends.model.User
+import thierry.friends.model.*
 import thierry.friends.repositories.firestore.ChatRepository
 import thierry.friends.repositories.firestore.UserRepository
 import javax.inject.Inject
@@ -41,8 +39,16 @@ class ChatFragmentViewModel @Inject constructor(
         return userRepository.getTheCurrentUserData()
     }
 
-    fun createLastMessagesSentOrReceived(uid: String, username: String, lastMessage: LastMessage) {
-        userRepository.createLastMessagesSentOrReceived(uid, username, lastMessage)
+    fun createLastMessagesSentOrReceived(uid1: String, uid2: String, lastMessage: LastMessage) {
+        userRepository.createLastMessagesSentOrReceived(uid1, uid2, lastMessage)
+    }
+
+    fun createLastChatFragmentOpening(
+        currentUid: String,
+        uidOfReceiver: String,
+        lastChatFragmentOpening: LastChatFragmentOpening
+    ) {
+        userRepository.createLastChatFragmentOpening(currentUid ,uidOfReceiver, lastChatFragmentOpening)
     }
 
 }

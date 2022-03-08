@@ -8,16 +8,17 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.*
-import thierry.friends.model.User
+import thierry.friends.model.LastChatFragmentOpening
 import thierry.friends.model.LastMessage
+import thierry.friends.model.User
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.collections.ArrayList
 
 private const val COLLECTION_USERS = "users"
 private const val COLLECTION_FRIENDS_REQUESTS_SENT = "friendsRequestsSent"
 private const val COLLECTION_FRIENDS_REQUESTS_RECEIVED = "friendsRequestsReceived"
 private const val COLLECTION_LAST_MESSAGES = "lastMessages"
+private const val COLLECTION_LAST_CHAT_FRAGMENT_OPENING = "lastChatFragmentOpening"
 
 @Singleton
 class UserRepository @Inject constructor() {
@@ -252,14 +253,16 @@ class UserRepository @Inject constructor() {
     }
 
     /** Create the Last Messages collection so you can sort the current user's list of friends based on the ones they spoke with most recently **/
-    fun createLastMessagesSentOrReceived(uid: String, username: String, lastMessage: LastMessage) {
-        getUsersCollection().document(uid).collection(COLLECTION_LAST_MESSAGES).document(username)
+    fun createLastMessagesSentOrReceived(uid1: String, uid2: String, lastMessage: LastMessage) {
+        getUsersCollection().document(uid1).collection(COLLECTION_LAST_MESSAGES).document(uid2)
             .set(lastMessage)
     }
 
-    /** Get the list of id of friends of the current user sorted by the ones they spoke with most recently **/
+    /** Get the list of id of friends of the current user sorted by the ones they spoke with most recently
+        Get the list of the last messages of the user to be able to know if he read them or not **/
 
     private val listSortedByLastFriendsCurrentUserSpokeWith = MutableLiveData<List<String>>()
+    private val listOfLastMessages = MutableLiveData<List<LastMessage>>()
 
     private fun callListSortedByLastFriendsCurrentUserSpokeWith() {
         getUsersCollection().document(getCurrentUserId()).collection(
@@ -268,25 +271,70 @@ class UserRepository @Inject constructor() {
             .addSnapshotListener { value, _ ->
                 val mutableListSortedByLastFriendsCurrentUserSpokeWith: MutableList<String> =
                     mutableListOf()
+                val mutableListOfLastMessages: MutableList<LastMessage> =
+                    mutableListOf()
                 if (value != null) {
                     for (document in value.documents) {
                         val lastMessage = document.toObject(LastMessage::class.java)
-                        lastMessage?.uid?.let {
+                        lastMessage?.let {
                             mutableListSortedByLastFriendsCurrentUserSpokeWith.add(
-                                it
+                                it.uid
                             )
+                            mutableListOfLastMessages.add(it)
                         }
                     }
                 }
-                listSortedByLastFriendsCurrentUserSpokeWith.setValue(
+                listSortedByLastFriendsCurrentUserSpokeWith.value =
                     mutableListSortedByLastFriendsCurrentUserSpokeWith
-                )
+                listOfLastMessages.value = mutableListOfLastMessages
             }
     }
 
     fun getListSortedByLastFriendsCurrentUserSpokeWith(): LiveData<List<String>> {
         callListSortedByLastFriendsCurrentUserSpokeWith()
         return listSortedByLastFriendsCurrentUserSpokeWith
+    }
+
+    fun getListOfLastMessages(): MutableLiveData<List<LastMessage>> {
+        return listOfLastMessages
+    }
+
+    /** **/
+
+    /** Create a collection for save in database the hour of the last opening of the Chat Fragment for know if current user read last messages or not **/
+
+    fun createLastChatFragmentOpening(
+        currentUid: String,
+        uidOfReceiver: String,
+        lastChatFragmentOpening: LastChatFragmentOpening
+    ) {
+        getUsersCollection().document(currentUid).collection(
+            COLLECTION_LAST_CHAT_FRAGMENT_OPENING
+        ).document(uidOfReceiver).set(lastChatFragmentOpening)
+    }
+
+    private val listOfLastChatFragmentOpening = MutableLiveData<List<LastChatFragmentOpening>>()
+
+    private fun callLastChatFragmentOpening() {
+        getUsersCollection().document(getCurrentUserId()).collection(
+            COLLECTION_LAST_CHAT_FRAGMENT_OPENING
+        ).addSnapshotListener { value, _ ->
+            val mutableListLastChatFragmentOpening: MutableList<LastChatFragmentOpening> =
+                mutableListOf()
+            if (value != null) {
+                for (document in value.documents) {
+                    val lastChatFragmentOpening =
+                        document.toObject(LastChatFragmentOpening::class.java)
+                    lastChatFragmentOpening?.let { mutableListLastChatFragmentOpening.add(it) }
+                }
+            }
+            listOfLastChatFragmentOpening.value = mutableListLastChatFragmentOpening
+        }
+    }
+
+    fun getListOfLastChatFragmentOpening(): MutableLiveData<List<LastChatFragmentOpening>> {
+        callLastChatFragmentOpening()
+        return listOfLastChatFragmentOpening
     }
 
     /** **/

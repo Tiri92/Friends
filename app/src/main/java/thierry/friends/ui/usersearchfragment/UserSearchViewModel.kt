@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import thierry.friends.model.LastChatFragmentOpening
+import thierry.friends.model.LastMessage
 import thierry.friends.model.User
 import thierry.friends.repositories.firestore.UserRepository
 import javax.inject.Inject
@@ -121,6 +123,18 @@ class UserSearchViewModel @Inject constructor(private val userRepository: UserRe
 
     fun deleteFriendsRequestsWhenItIsProcessed(uid: String, friendId: String) {
         userRepository.deleteFriendsRequestsWhenItIsProcessed(uid, friendId)
+    }
+
+    fun createLastMessagesSentOrReceived(uid1: String, uid2: String, lastMessage: LastMessage) {
+        userRepository.createLastMessagesSentOrReceived(uid1, uid2, lastMessage)
+    }
+
+    fun createLastChatFragmentOpening(
+        currentUid: String,
+        uidOfReceiver: String,
+        lastChatFragmentOpening: LastChatFragmentOpening
+    ) {
+        userRepository.createLastChatFragmentOpening(currentUid, uidOfReceiver, lastChatFragmentOpening)
     }
 
 }

@@ -12,8 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import thierry.friends.databinding.FragmentUserSearchBinding
+import thierry.friends.model.LastChatFragmentOpening
+import thierry.friends.model.LastMessage
 import thierry.friends.model.User
 import thierry.friends.service.FcmNotificationsSender
+import java.util.*
 
 @AndroidEntryPoint
 class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
@@ -162,6 +165,26 @@ class UserSearchFragment : UserSearchAdapter.OnFriendRequestClicked,
         currentUser?.uid?.let { currentUser -> newFriend.listOfFriends.add(currentUser) }
         viewModel.setUserDataWhoSentFriendRequest(newFriend.uid, newFriend)
         viewModel.deleteFriendsRequestsWhenItIsProcessed(currentUser!!.uid, newFriend.uid)
+        viewModel.createLastMessagesSentOrReceived(
+            currentUser!!.uid,
+            newFriend.uid,
+            LastMessage(Calendar.getInstance().timeInMillis.toString(), newFriend.uid)
+        )
+        viewModel.createLastMessagesSentOrReceived(
+            newFriend.uid,
+            currentUser!!.uid,
+            LastMessage(Calendar.getInstance().timeInMillis.toString(), currentUser!!.uid)
+        )
+        viewModel.createLastChatFragmentOpening(
+            currentUser!!.uid,
+            newFriend.uid,
+            LastChatFragmentOpening(newFriend.uid, Calendar.getInstance().timeInMillis.toString())
+        )
+        viewModel.createLastChatFragmentOpening(
+            newFriend.uid, currentUser!!.uid, LastChatFragmentOpening(
+                currentUser!!.uid, Calendar.getInstance().timeInMillis.toString()
+            )
+        )
     }
 
     override fun friendRequestRefused(userWhoRefused: User) {

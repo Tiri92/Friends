@@ -8,11 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import thierry.friends.R
 import thierry.friends.databinding.UserItemBinding
+import thierry.friends.model.LastMessage
 import thierry.friends.model.User
 import thierry.friends.ui.chatfragment.ChatFragment
 
 class FriendsAdapter(
+    private val currentUser: User,
     private val listOfAllFriends: List<User>,
+    private val listOfUnreadMessages: List<LastMessage>?,
     private val parentFragmentManager: FragmentManager
 ) :
     RecyclerView.Adapter<FriendsAdapter.ViewHolder>() {
@@ -25,12 +28,18 @@ class FriendsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.friendRequest.isVisible = false
         holder.username.text = listOfAllFriends[position].username
+        listOfUnreadMessages?.forEach { unreadMessage ->
+            if(unreadMessage.uid == listOfAllFriends[position].uid) {
+                holder.newMessage.isVisible = true
+            }
+        }
         Glide.with(holder.userPic).load(listOfAllFriends[position].userPicture).circleCrop()
             .into(holder.userPic)
         holder.itemView.setOnClickListener {
             parentFragmentManager.beginTransaction().replace(
                 R.id.fragment_container_view,
                 ChatFragment.newInstance(
+                    currentUser.uid,
                     listOfAllFriends[position].uid,
                     listOfAllFriends[position].username,
                     listOfAllFriends[position].userFcmToken
@@ -47,6 +56,7 @@ class FriendsAdapter(
         val userPic = binding.userPic
         val username = binding.username
         val friendRequest = binding.friendRequestButton
+        val newMessage = binding.newMessage
     }
 
 }
