@@ -13,4 +13,5 @@
     <string name="message">Message</string>
     <string name="chat_with">Chat with</string>
     <string name="search_a_user">Search a user</string>
+    <string name="new_message_received">New message received</string>
 </resources>
